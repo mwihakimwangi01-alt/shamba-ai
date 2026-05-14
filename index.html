@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shamba AI – Smart Farming Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">🌱</div>
+      <div>
+        <h1>Shamba AI</h1>
+        <p>Smart Farming Assistant</p>
+      </div>
+    </div>
+    <nav>
+      <button class="active" onclick="showPage('chat')">💬 Ask AI</button>
+      <button onclick="showPage('report')">📋 Farm Report</button>
+      <button onclick="showPage('analytics')">📊 Analytics</button>
+      <button onclick="showPage('diagnoses')">🔬 Diagnoses</button>
+    </nav>
+  </header>
+
+  <!-- CHAT PAGE -->
+  <div id="page-chat" class="page active">
+    <div class="welcome-banner">
+      <h2>Hello, Farmer! 👋</h2>
+      <p>Ask me anything about your crops, upload a photo of a sick plant, or get advice on soil and weather. I'm here to help you grow better.</p>
+    </div>
+
+    <div class="card">
+      <h2>💬 Chat with Shamba AI</h2>
+      <div class="chips">
+        <span class="chip" onclick="quickAsk('My maize leaves are turning yellow, what is wrong?')">🌽 Yellow maize leaves</span>
+        <span class="chip" onclick="quickAsk('What fertilizer is best for tomatoes?')">🍅 Tomato fertilizer</span>
+        <span class="chip" onclick="quickAsk('How do I control pests on my beans?')">🫘 Bean pests</span>
+        <span class="chip" onclick="quickAsk('When is the best time to plant in Kenya?')">📅 Planting season</span>
+        <span class="chip" onclick="quickAsk('How do I improve my soil quality?')">🌍 Soil quality</span>
+      </div>
+
+      <div class="chat-box" id="chatBox"></div>
+
+      <div class="chat-input-area">
+        <div class="image-preview" id="imagePreview">
+          <img id="previewImg" src="" alt="preview"/>
+          <button onclick="clearImage()">✕</button>
+        </div>
+        <div class="input-row">
+          <label class="upload-btn" for="imageInput">
+            📸 Upload Plant Photo
+            <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="handleImageSelect(event)"/>
+          </label>
+          <textarea id="chatInput" placeholder="Ask about your crops... e.g. My tomatoes have brown spots" onkeydown="handleKey(event)"></textarea>
+          <button class="btn btn-green" id="sendBtn" onclick="sendMessage()">Send ➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FARM REPORT PAGE -->
+  <div id="page-report" class="page">
+    <div class="card">
+      <h2>📋 Submit Farm Report</h2>
+      <p style="color:var(--subtle);font-size:0.85rem;margin-bottom:20px;">Fill in your farm data. This helps generate analytics and AI recommendations.</p>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Crop Name</label>
+          <select id="r-crop">
+            <option value="">Select crop...</option>
+            <option>Maize</option>
+            <option>Beans</option>
+            <option>Tomatoes</option>
+            <option>Tea</option>
+            <option>Coffee</option>
+            <option>Sugarcane</option>
+            <option>Potatoes</option>
+            <option>Cabbage</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Field Size (acres)</label>
+          <input type="number" id="r-field" placeholder="e.g. 2.5" min="0" step="0.1"/>
+        </div>
+        <div class="form-group">
+          <label>Yield (kg)</label>
+          <input type="number" id="r-yield" placeholder="e.g. 500" min="0"/>
+        </div>
+        <div class="form-group">
+          <label>Rainfall (mm)</label>
+          <input type="number" id="r-rain" placeholder="e.g. 120" min="0"/>
+        </div>
+        <div class="form-group">
+          <label>Temperature (°C)</label>
+          <input type="number" id="r-temp" placeholder="e.g. 24" min="0"/>
+        </div>
+        <div class="form-group">
+          <label>Soil pH</label>
+          <input type="number" id="r-ph" placeholder="e.g. 6.5" min="0" max="14" step="0.1"/>
+        </div>
+        <div class="form-group">
+          <label>Fertilizer Used</label>
+          <input type="text" id="r-fert" placeholder="e.g. DAP, CAN, Organic"/>
+        </div>
+        <div class="form-group">
+          <label>Report Date</label>
+          <input type="date" id="r-date"/>
+        </div>
+        <div class="form-group form-full">
+          <label>Notes</label>
+          <textarea id="r-notes" placeholder="Any observations about your farm this season..." style="height:80px;resize:vertical;"></textarea>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;display:flex;gap:12px;">
+        <button class="btn btn-green" onclick="submitReport()">💾 Save Report</button>
+        <button class="btn btn-outline" onclick="clearReport()">🗑 Clear</button>
+      </div>
+      <div id="reportMsg" style="margin-top:12px;font-size:0.85rem;"></div>
+    </div>
+  </div>
+
+  <!-- ANALYTICS PAGE -->
+  <div id="page-analytics" class="page">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="number" id="statReports">0</div>
+        <div class="label">Total Reports</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="statYield">0 kg</div>
+        <div class="label">Avg Yield</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="statCrops">0</div>
+        <div class="label">Crop Types</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>🌽 Yield by Crop</h3>
+        <canvas id="cropChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>📈 Yield Trend Over Time</h3>
+        <canvas id="trendChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>🌧 Rainfall vs Yield</h3>
+        <canvas id="rainChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>🤖 AI Recommendations</h3>
+        <div id="aiRecs" style="font-size:0.83rem;color:var(--subtle);line-height:1.8;">
+          Submit farm reports to get AI-powered recommendations here.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIAGNOSES PAGE -->
+  <div id="page-diagnoses" class="page">
+    <div class="card">
+      <h2>🔬 Plant Diagnoses History</h2>
+      <p style="color:var(--subtle);font-size:0.85rem;margin-bottom:20px;">All plant photos you've uploaded and their AI diagnoses.</p>
+      <div class="diagnosis-list" id="diagnosisList">
+        <p style="color:var(--subtle);font-size:0.85rem;">No diagnoses yet. Upload a plant photo in the chat to get started!</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>
